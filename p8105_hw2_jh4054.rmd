@@ -202,13 +202,35 @@ brfss %>%
   head(1)
 ```
 
-```{r}
+Histogram characterizes the distribution of excellent response proportions across counties that participated in the 2002 health status survey. 
+```{r, message=FALSE, warning=FALSE}
 #5. histogram of excellent response values in the year 2002
-ggplot(brfss, aes(x = excellent))
+brfss_2002 = brfss %>% 
+  filter(year == 2002) 
+
+ggplot(brfss_2002, aes(x = excellent)) +
+  geom_histogram() + 
+  labs(
+    title = "Distribution of Excellent Response Proportions in 2002",
+    x = "Proportion of 'Excellent' Responses",
+    y = "Number of Counties")
 ```
 
+Scatterplot characterizes the proportion of "excellent" responses in New York County and Queens County from 2002 to 2010.
 ```{r}
 #6. scatterplot showing proportion of "excellent" response values in New York County and Queens County (both in NY State) in each year from 2002 to 2010
+brfss %>% 
+  filter(county == "New York County" | county == "Queens County") %>% 
+  ggplot(aes(x = year, y = excellent, color = county)) + 
+  geom_point(size = 3) +
+  labs(
+    title = "Proportion of Excellent Responses by Year",
+    x = "Year",
+    y = "Proportion of Excellent Responses") +
+  theme(legend.position = "bottom") +
+  viridis::scale_color_viridis(
+    name = "County", 
+    discrete = TRUE)
 ```
 
 
