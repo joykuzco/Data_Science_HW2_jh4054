@@ -157,7 +157,7 @@ sum(trash_wheel_2016$weight_tons)
 
 sum(trash_wheel_2017$weight_tons)
 
-#median number of sports balls in a dumpster in 2016
+#median number of sports balls & other trash items in a dumpster, 2016
 trash_wheel %>% 
   group_by(year) %>% 
   summarise(
@@ -168,9 +168,7 @@ trash_wheel %>%
     chip_bags = mean(chip_bags))
 ```
 
-The Mr. Trash Wheel dataset tracks information about litter collected from the Jones Falls River, from May 2014 to July 2018. Each line of observation corresponds to a filled dumpster, along with weight of dumpster, volume of dumpster, homes powered, and count of trash items: plastic bottles, polystyrene, cigarette butts, glass bottles, chip bags, sports balls. Additionally, monthly precipitation is shown for each year. Total precipitation (inches) in 2016 and 2017 was `r sum(precip_2016$prcp_inches)` and `r sum(precip_2017$prcp_inches)`, respectively. Total weight (tons) of trash collected in 2016 and 2016 was `r sum(trash_wheel_2016$weight_tons)` and `r sum(trash_wheel_2017$weight_tons)`, respectively. In 2016, months with the highest number of filled dumpsters were July (n=8), Feb (n=6), and June (n=6). In 2016, the two months with the highest precipitation were July (6.09") and Feb (5.32"). In 2017, months with the highest number of filled dumpsters were April (n=18), Aug (n=8), and May (n=8). In 2017, the months with the highest precipitation were July (7.09"), May (5.64"), and Aug (4.44"). These trends suggest an association between precipitation level and number of dumpsters filled. In 2016, the median number of sports balls in a dumpster was `r trash_wheel %>% group_by(year) %>% summarise(sports_balls = median(sports_balls))`
-
-median sports_balls in 2016 = 26
+The Mr. Trash Wheel dataset tracks information about litter collected from the Jones Falls River, from May 2014 to July 2018. Each line of observation corresponds to a filled dumpster, along with weight of dumpster, volume of dumpster, homes powered, and count of trash items: plastic bottles, polystyrene, cigarette butts, glass bottles, chip bags, sports balls. Additionally, monthly precipitation is shown for each year. Total precipitation (inches) in 2016 and 2017 was `r sum(precip_2016$prcp_inches)` and `r sum(precip_2017$prcp_inches)`, respectively. Total weight (tons) of trash collected in 2016 and 2016 was `r sum(trash_wheel_2016$weight_tons)` and `r sum(trash_wheel_2017$weight_tons)`, respectively. In 2016, months with the highest number of filled dumpsters were July (n=8), Feb (n=6), and June (n=6). In 2016, the two months with the highest precipitation were July (6.09") and Feb (5.32"). In 2017, months with the highest number of filled dumpsters were April (n=18), Aug (n=8), and May (n=8). In 2017, the months with the highest precipitation were July (7.09"), May (5.64"), and Aug (4.44"). These trends suggest an association between precipitation level and number of dumpsters filled. In 2016, the median number of sports balls in a dumpster was 26.
 
 ### Problem 3
 
