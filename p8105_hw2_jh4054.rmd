@@ -151,9 +151,23 @@ trash_wheel %>%
 Load BRFSS dataset
 ```{r, collapse=TRUE}
 library(p8105.datasets)
+
+data(brfss_smart2010)
 ```
 
+Clean BRFSS dataset
 ```{r}
-
+brfss = brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  select(-class, -topic, -question, -sample_size, -c(confidence_limit_low:geo_location)) %>% 
+  separate(locationdesc, into = c("rem1", "county"), sep = 5) %>% 
+  select(-rem1) %>% 
+  rename(state = locationabbr)
 ```
+
+
+
+
+
 
