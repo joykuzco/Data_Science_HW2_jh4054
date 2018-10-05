@@ -128,12 +128,26 @@ precip_years = bind_rows(precip_2016, precip_2017)
 
 ####Mr. Trash Wheel
 
-1. sum of precipitation in 2017 = 32.93 inches
-2. median sports_balls in 2016 = 26
-
 ```{r, collapse=TRUE}
+#total precipitation in 2016
+sum(precip_2016$prcp_inches)
+
 #total precipitation in 2017
 sum(precip_2017$prcp_inches)
+
+#number of dumpsters filled per month in 2016
+trash_wheel_2016 = trash_wheel %>% 
+  filter(year == 2016) %>% 
+  arrange(date)
+
+plyr::count(trash_wheel_2016$month)
+
+#number of dumpsters filled per month in 2017
+trash_wheel_2017 = trash_wheel %>% 
+  filter(year == 2017) %>% 
+  arrange(date)
+
+plyr::count(trash_wheel_2017$month)
 
 #median number of sports balls in a dumpster in 2016
 trash_wheel %>% 
@@ -144,7 +158,13 @@ trash_wheel %>%
     plastic_bottles = mean(plastic_bottles),
     polystyrene = mean(polystyrene), 
     chip_bags = mean(chip_bags))
+
 ```
+
+The Mr. Trash Wheel dataset tracks information about litter collected from the Jones Falls River, from May 2014 to July 2018. Each line of observation corresponds to a filled dumpster, along with weight of dumpster, volume of dumpster, homes powered, and count of trash items: plastic bottles, polystyrene, cigarette butts, glass bottles, chip bags, sports balls. Additionally, monthly precipitation is shown for each year. Total precipitation (inches) in 2016 and 2017 was `r sum(precip_2016$prcp_inches)` and `r sum(precip_2017$prcp_inches)`, respectively.
+
+1. sum of precipitation in 2017 = 32.93 inchess
+2. median sports_balls in 2016 = 26
 
 ### Problem 3
 
