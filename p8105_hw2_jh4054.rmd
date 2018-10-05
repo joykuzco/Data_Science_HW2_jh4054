@@ -40,9 +40,7 @@ nyc_trans = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
   mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE))
 ```
 
-1. Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
-
-The NYC Transit dataset describes parameters for every entrance and exit in each NYC subway station. Details for each location include coordinates, routes served, vending, staffing, and ADA compliance. Inital cleaning involved 1) changing variable names to snake case, 2) mutating the `entry` variable from a character to logical variable - `TRUE` for the presence of an entry and `FALSE` no entry. Additionally, only select variables of interest were retained: line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. The initial dataset is untidy, each route number is listed as a separate variable with the route name as value. After abovementioned cleaning steps, the dimensions of the resulting dataset is `r dim(nyc_trans)`
+The NYC Transit dataset describes parameters for every entrance and exit in each NYC subway station. Details for each location include coordinates, routes served, vending, staffing, and ADA compliance. Inital cleaning involved 1) changing variable names to snake case, 2) mutating the `entry` variable from a character to logical variable - `TRUE` for the presence of an entry and `FALSE` no entry. Additionally, only select variables of interest were retained: line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. The initial dataset is untidy, since each route number is listed as a separate column variable. After abovementioned cleaning steps, the dimensions of the resulting dataset is `r dim(nyc_trans)`
 
 2. Answer the following questions using these data:
 
@@ -78,24 +76,27 @@ nrow(
   filter(nyc_trans, vending == "NO"))
 ```
 
+Tidy data by gathering route number and route name as distinct variables. There are 60 stations that serve the A train, of which 17 are ADA compliant.
 ```{r}
 #Reformat data so that route number and route name are distinct variables
-nyc_trans_tidy = gather(nyc_trans, key = route_number, value = route_name, route1:route11, na.rm = TRUE)
+nyc_trans_tidy = nyc_trans %>% 
+  gather(key = route_number, value = route_name, route1:route11, na.rm = TRUE)
 
-#56 distinct stations serve the A train. 
-nrow(nyc_trans_tidy %>% 
+#1. number of distinct stations that serve the A train. 
+nyc_trans_tidy %>% 
   filter(route_name == "A") %>% 
-  distinct(station_name, keep_all = TRUE))
+  distinct(line, station_name) %>%
+  nrow()
 
-#16 stations that serve the A train are ADA compliant
+#2. number of ADA compliant stations that serve the A train
 nrow(nyc_trans_tidy %>% 
   filter(route_name == "A", ada == TRUE) %>% 
-  distinct(station_name, keep_all = TRUE))
+  distinct(line, station_name))
 ```
 
 ### Problem 2
 
-Read and clean mr. trash wheel, sheet 1
+Read and clean `trash_wheel` data
 ```{r}
 #perhaps key together trash item names?
 trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N338") %>% 
@@ -105,9 +106,10 @@ trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals201
   mutate(sports_balls = as.integer(round(sports_balls, digits = 0)))
 ```
 
-Read and clean precipitation data for 2016 and 2017
+Read and clean precipitation data for 2016 and 2017. Join datasets for 2016 and 2017. 
 ```{r}
-precipitation_2016 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B14") %>% 
+#read and clean precipitation data for 2016
+precip_2016 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B14") %>% 
   janitor::clean_names() %>% 
   mutate(
     month = month.abb[month], 
@@ -115,14 +117,17 @@ precipitation_2016 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTo
     year = 2016) %>% 
   rename(prcp_inches = total)
 
+#read and clean precipitation data for 2016
+precip_2017 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 4, range = "A2:B14") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    month = month.abb[month], 
+    month = tolower(month),
+    year = 2017) %>% 
+  rename(prcp_inches = total)
 
-mr_trash_wheel_precip_data_2016 =
-  read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B15") %>% 
-  janitor::clean_names() %>%
-  filter(!is.na(total)) %>%
-  select(month, total_precipitation = total) %>% 
-  mutate(month = month.name[month])
-
+#combine data for 2016 & 2017
+precip_years = bind_rows(precip_2016, precip_2017)
 ```
 
 
