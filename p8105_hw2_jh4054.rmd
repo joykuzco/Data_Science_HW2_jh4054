@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
 nyc_trans = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
   janitor::clean_names() %>% 
   select(line:entry, vending, ada) %>% 
-  mutate(entry = ifelse(nyc_trans$entry == "YES", "TRUE", "FALSE"))
+  mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE))
 ```
 
 1. Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
@@ -51,26 +51,31 @@ The NYC Transit dataset describes parameters for every entrance and exit in each
 * What proportion of station entrances / exits without vending allow entrance?
 * Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant? --> need to tidy data 
 
-```{r}
+Further details:
+
+1. There are 465 distinct stations, identified by name and line
+2. There are 84 ADA compliant stations
+3. 38% of station entrances/exits without vending allow entrance
+
+```{r, collapse=TRUE}
 #dimensions
 dim(nyc_trans)
 
-#distinct stations, 356 distinct stations
-nrow(distinct(nyc_trans, station_name))
+#1. number of distinct stations, identified by name and line
+distinct(nyc_trans, line, station_name) %>% 
+  nrow()
 
-##356 rows, frequency each unique station name appears.
-plyr::count(nyc_trans$station_name)
+#2. number of ADA compliant stations
+nyc_trans %>% 
+  filter(ada == TRUE) %>%
+  distinct(line, station_name) %>% 
+  nrow()
 
-#number of ADA compliant entries, multiple ways, 468
-length(which(nyc_trans$ada == TRUE))
-
-#proportion of station entrances&exits without vending that allow entrance => 69 allow entrance out of 183
-#number of exits or entrances without vending = 183
-nrow(filter(nyc_trans, vending == "NO" & entry == "TRUE"))
-#of entrances without vending = 69
-nrow(filter(nyc_trans, vending == "NO"))
-#proportion
-nrow(filter(nyc_trans, vending == "NO" & entry == "TRUE"))/nrow(filter(nyc_trans, vending == "NO"))
+#3. proprotion of station entrances/exits without vending that allow entrance
+nrow(
+  filter(nyc_trans, vending == "NO" & entry == "TRUE")) /
+nrow(
+  filter(nyc_trans, vending == "NO"))
 ```
 
 ```{r}
@@ -98,6 +103,26 @@ trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals201
   filter(dumpster != "NA") %>% 
   mutate(month = tolower(month)) %>% 
   mutate(sports_balls = as.integer(round(sports_balls, digits = 0)))
+```
+
+Read and clean precipitation data for 2016 and 2017
+```{r}
+precipitation_2016 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B14") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    month = month.abb[month], 
+    month = tolower(month),
+    year = 2016) %>% 
+  rename(prcp_inches = total)
+
+
+mr_trash_wheel_precip_data_2016 =
+  read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B15") %>% 
+  janitor::clean_names() %>%
+  filter(!is.na(total)) %>%
+  select(month, total_precipitation = total) %>% 
+  mutate(month = month.name[month])
+
 ```
 
 
