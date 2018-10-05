@@ -90,10 +90,14 @@ nrow(nyc_trans_tidy %>%
 
 ### Problem 2
 
+Read and clean mr. trash wheel, sheet 1
 ```{r}
-#Read sheet 1 of trash_wheel excel file
+#perhaps key together trash item names?
 trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N338") %>% 
-  janitor::clean_names()
+  janitor::clean_names() %>% 
+  filter(dumpster != "NA") %>% 
+  mutate(month = tolower(month)) %>% 
+  mutate(sports_balls = as.integer(round(sports_balls, digits = 0)))
 ```
 
 
