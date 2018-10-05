@@ -91,7 +91,8 @@ nrow(nyc_trans_tidy %>%
 ### Problem 2
 
 ```{r}
-trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx") %>% 
+#Read sheet 1 of trash_wheel excel file
+trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N338") %>% 
   janitor::clean_names()
 ```
 
