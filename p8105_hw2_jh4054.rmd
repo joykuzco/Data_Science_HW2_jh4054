@@ -167,11 +167,48 @@ brfss = brfss_smart2010 %>%
   spread(key = response, value = data_value) %>%
   janitor::clean_names() %>% 
   select(year, state, county, poor, fair, good, very_good, excellent) %>% 
-  arrange(year, state, county)
+  arrange(year, state, county) %>% 
+  mutate(verygood_or_excellent = excellent + very_good)
 ```
 
+#### BRFSS Observations
 
+1. There are 404 distinct locations
+2. There are 50 states and the District of Columbia representated
+3. NJ was the most observed state
+4. In 2002, the median proportion of "excellent" responses across all surveyed counties is 23.60
 
+```{r, collapse=TRUE}
+#1. number of unique locations in dataset
+brfss %>% 
+  distinct(county, state) %>% 
+  nrow()
 
+#2. is every state represented?
+brfss %>% 
+  distinct(state) %>% 
+  nrow()
+
+#3. what state is observed the most?
+plyr::count(brfss$state) %>% 
+  arrange(desc(freq)) %>% 
+  head(1)
+
+#4. median of the "excellent" proportion in 2002
+brfss %>% 
+  group_by(year) %>% 
+  summarise(excellent = median(excellent, na.rm = TRUE)) %>% 
+  arrange(year) %>% 
+  head(1)
+```
+
+```{r}
+#5. histogram of excellent response values in the year 2002
+ggplot(brfss, aes(x = excellent))
+```
+
+```{r}
+#6. scatterplot showing proportion of "excellent" response values in New York County and Queens County (both in NY State) in each year from 2002 to 2010
+```
 
 
