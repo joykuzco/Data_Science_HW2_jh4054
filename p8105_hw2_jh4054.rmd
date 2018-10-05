@@ -163,7 +163,11 @@ brfss = brfss_smart2010 %>%
   select(-class, -topic, -question, -sample_size, -c(confidence_limit_low:geo_location)) %>% 
   separate(locationdesc, into = c("rem1", "county"), sep = 5) %>% 
   select(-rem1) %>% 
-  rename(state = locationabbr)
+  rename(state = locationabbr) %>% 
+  spread(key = response, value = data_value) %>%
+  janitor::clean_names() %>% 
+  select(year, state, county, poor, fair, good, very_good, excellent) %>% 
+  arrange(year, state, county)
 ```
 
 
