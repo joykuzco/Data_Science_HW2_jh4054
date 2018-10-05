@@ -32,22 +32,16 @@ knitr::opts_chunk$set(
 
 ### Problem 1
 
+Read & clean NYC Transit Subway dataset
 ```{r, collapse=TRUE}
-#read & clean data files
+
 nyc_trans = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
   janitor::clean_names() %>% 
   select(line:entry, vending, ada) %>% 
   mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE))
 ```
 
-The NYC Transit dataset describes parameters for every entrance and exit in each NYC subway station. Details for each location include coordinates, routes served, vending, staffing, and ADA compliance. Inital cleaning involved 1) changing variable names to snake case, 2) mutating the `entry` variable from a character to logical variable - `TRUE` for the presence of an entry and `FALSE` no entry. Additionally, only select variables of interest were retained: line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. The initial dataset is untidy, since each route number is listed as a separate column variable. After abovementioned cleaning steps, the dimensions of the resulting dataset is `r dim(nyc_trans)`
-
-2. Answer the following questions using these data:
-
-* How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St A/B/C/D; 125st 1; 125st 4/5); the distinct function may be useful here.
-* How many stations are ADA compliant? 
-* What proportion of station entrances / exits without vending allow entrance?
-* Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant? --> need to tidy data 
+The NYC Transit dataset describes parameters for each entry and exit point in every NYC subway station. Details for each location include coordinates, routes served, vending, staffing, and ADA compliance. Initial cleaning involved 1) changing variable names to snake case, 2) mutating the `entry` variable from a character to a logical variable: `TRUE` for the presence of an entry and `FALSE` for no entry. Additionally, only select variables of interest were retained: line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. The initial dataset was untidy; each route number was listed as a separate column variable. After abovementioned cleaning steps, the dimensions of the resulting dataset is (`r dim(nyc_trans)`)
 
 Further details:
 
@@ -76,11 +70,13 @@ nrow(
   filter(nyc_trans, vending == "NO"))
 ```
 
-Tidy data by gathering route number and route name as distinct variables. There are 60 stations that serve the A train, of which 17 are ADA compliant.
-```{r}
+Next, we address the untidy variables by gathering the route number columns. There are 60 stations that serve the A train, of which 17 are ADA compliant.
+```{r, collapse=TRUE}
 #Reformat data so that route number and route name are distinct variables
 nyc_trans_tidy = nyc_trans %>% 
-  gather(key = route_number, value = route_name, route1:route11, na.rm = TRUE)
+  gather(key = route_number, value = route_name, route1:route11, na.rm = TRUE) %>% 
+  separate(route_number, into = c("rem1", "route_number"), sep = 5) %>% 
+  select(-rem1)
 
 #1. number of distinct stations that serve the A train. 
 nyc_trans_tidy %>% 
@@ -89,16 +85,16 @@ nyc_trans_tidy %>%
   nrow()
 
 #2. number of ADA compliant stations that serve the A train
-nrow(nyc_trans_tidy %>% 
+nyc_trans_tidy %>% 
   filter(route_name == "A", ada == TRUE) %>% 
-  distinct(line, station_name))
+  distinct(line, station_name) %>% 
+  nrow()
 ```
 
 ### Problem 2
 
 Read and clean `trash_wheel` data
 ```{r}
-#perhaps key together trash item names?
 trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N338") %>% 
   janitor::clean_names() %>% 
   filter(dumpster != "NA") %>% 
@@ -130,6 +126,25 @@ precip_2017 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals201
 precip_years = bind_rows(precip_2016, precip_2017)
 ```
 
+####Mr. Trash Wheel
+
+1. sum of precipitation in 2017 = 32.93 inches
+2. median sports_balls in 2016 = 26
+
+```{r}
+#total precipitation in 2017
+sum(precip_2017$prcp_inches)
+
+#median number of sports balls in a dumpster in 2016
+trash_wheel %>% 
+  group_by(year) %>% 
+  summarise(
+    sports_balls = median(sports_balls),
+    glass_bottles = mean(glass_bottles),
+    plastic_bottles = mean(plastic_bottles),
+    polystyrene = mean(polystyrene), 
+    chip_bags = mean(chip_bags))
+```
 
 
 

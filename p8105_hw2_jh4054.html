@@ -249,12 +249,12 @@ div.tocify {
 <p>Load packages and set specifications for visual outputs</p>
 <pre class="r"><code>#load packages
 library(tidyverse)
-## ── Attaching packages ──────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+## ── Attaching packages ────────────────────────────────────────────────── tidyverse 1.2.1 ──
 ## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
 ## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
 ## ✔ readr   1.1.1     ✔ forcats 0.3.0
-## ── Conflicts ─────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ── Conflicts ───────────────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 library(ggridges)
@@ -273,10 +273,15 @@ knitr::opts_chunk$set(
   fig.asp = .6,
   out.width = &quot;90%&quot;
 )</code></pre>
-<p>Read datasets to be used for Problem 1. <code>nyc_trans</code> and Problem 2. <code>trash_wheel</code>. Clean names with janitor package.</p>
-<pre class="r"><code>#read &amp; clean data files
+</div>
+<div id="problem-1" class="section level3">
+<h3>Problem 1</h3>
+<p>Read &amp; clean NYC Transit Subway dataset</p>
+<pre class="r"><code>
 nyc_trans = read_csv(&quot;./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv&quot;) %&gt;% 
-  janitor::clean_names()
+  janitor::clean_names() %&gt;% 
+  select(line:entry, vending, ada) %&gt;% 
+  mutate(entry = recode(entry, &quot;YES&quot; = TRUE, &quot;NO&quot; = FALSE))
 ## Parsed with column specification:
 ## cols(
 ##   .default = col_character(),
@@ -291,10 +296,89 @@ nyc_trans = read_csv(&quot;./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv&
 ##   `Entrance Latitude` = col_double(),
 ##   `Entrance Longitude` = col_double()
 ## )
-## See spec(...) for full column specifications.
+## See spec(...) for full column specifications.</code></pre>
+<p>The NYC Transit dataset describes parameters for each entry and exit point in every NYC subway station. Details for each location include coordinates, routes served, vending, staffing, and ADA compliance. Initial cleaning involved 1) changing variable names to snake case, 2) mutating the <code>entry</code> variable from a character to a logical variable: <code>TRUE</code> for the presence of an entry and <code>FALSE</code> for no entry. Additionally, only select variables of interest were retained: line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. The initial dataset was untidy; each route number was listed as a separate column variable. After abovementioned cleaning steps, the dimensions of the resulting dataset is (1868, 19)</p>
+<p>Further details:</p>
+<ol style="list-style-type: decimal">
+<li>There are 465 distinct stations, identified by name and line</li>
+<li>There are 84 ADA compliant stations</li>
+<li>38% of station entrances/exits without vending allow entrance</li>
+</ol>
+<pre class="r"><code>#dimensions
+dim(nyc_trans)
+## [1] 1868   19
 
-trash_wheel = readxl::read_excel(path = &quot;./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;) %&gt;% 
-  janitor::clean_names()</code></pre>
+#1. number of distinct stations, identified by name and line
+distinct(nyc_trans, line, station_name) %&gt;% 
+  nrow()
+## [1] 465
+
+#2. number of ADA compliant stations
+nyc_trans %&gt;% 
+  filter(ada == TRUE) %&gt;%
+  distinct(line, station_name) %&gt;% 
+  nrow()
+## [1] 84
+
+#3. proprotion of station entrances/exits without vending that allow entrance
+nrow(
+  filter(nyc_trans, vending == &quot;NO&quot; &amp; entry == &quot;TRUE&quot;)) /
+nrow(
+  filter(nyc_trans, vending == &quot;NO&quot;))
+## [1] 0.3770492</code></pre>
+<p>Next, we address the untidy variables by gathering the route number columns. There are 60 stations that serve the A train, of which 17 are ADA compliant.</p>
+<pre class="r"><code>#Reformat data so that route number and route name are distinct variables
+nyc_trans_tidy = nyc_trans %&gt;% 
+  gather(key = route_number, value = route_name, route1:route11, na.rm = TRUE) %&gt;% 
+  separate(route_number, into = c(&quot;rem1&quot;, &quot;route_number&quot;), sep = 5) %&gt;% 
+  select(-rem1)
+
+#1. number of distinct stations that serve the A train. 
+nyc_trans_tidy %&gt;% 
+  filter(route_name == &quot;A&quot;) %&gt;% 
+  distinct(line, station_name) %&gt;%
+  nrow()
+## [1] 60
+
+#2. number of ADA compliant stations that serve the A train
+nyc_trans_tidy %&gt;% 
+  filter(route_name == &quot;A&quot;, ada == TRUE) %&gt;% 
+  distinct(line, station_name) %&gt;% 
+  nrow()
+## [1] 17</code></pre>
+</div>
+<div id="problem-2" class="section level3">
+<h3>Problem 2</h3>
+<p>Read and clean <code>trash_wheel</code> data</p>
+<pre class="r"><code>trash_wheel = readxl::read_excel(path = &quot;./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;, sheet = 1, range = &quot;A2:N338&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(dumpster != &quot;NA&quot;) %&gt;% 
+  mutate(month = tolower(month)) %&gt;% 
+  mutate(sports_balls = as.integer(round(sports_balls, digits = 0)))</code></pre>
+<p>Read and clean precipitation data for 2016 and 2017. Join datasets for 2016 and 2017.</p>
+<pre class="r"><code>#read and clean precipitation data for 2016
+precip_2016 = readxl::read_excel(path = &quot;./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;, sheet = 5, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(
+    month = month.abb[month], 
+    month = tolower(month),
+    year = 2016) %&gt;% 
+  rename(prcp_inches = total)
+
+#read and clean precipitation data for 2016
+precip_2017 = readxl::read_excel(path = &quot;./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;, sheet = 4, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(
+    month = month.abb[month], 
+    month = tolower(month),
+    year = 2017) %&gt;% 
+  rename(prcp_inches = total)
+
+#combine data for 2016 &amp; 2017
+precip_years = bind_rows(precip_2016, precip_2017)</code></pre>
+<div id="mr.trash-wheel" class="section level4">
+<h4>Mr. Trash Wheel</h4>
+</div>
 </div>
 
 
