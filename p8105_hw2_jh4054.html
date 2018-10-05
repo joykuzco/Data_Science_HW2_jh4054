@@ -378,7 +378,35 @@ precip_2017 = readxl::read_excel(path = &quot;./data/HealthyHarborWaterWheelTota
 precip_years = bind_rows(precip_2016, precip_2017)</code></pre>
 <div id="mr.trash-wheel" class="section level4">
 <h4>Mr. Trash Wheel</h4>
+<ol style="list-style-type: decimal">
+<li>sum of precipitation in 2017 = 32.93 inches</li>
+<li>median sports_balls in 2016 = 26</li>
+</ol>
+<pre class="r"><code>#total precipitation in 2017
+sum(precip_2017$prcp_inches)
+## [1] 32.93
+
+#median number of sports balls in a dumpster in 2016
+trash_wheel %&gt;% 
+  group_by(year) %&gt;% 
+  summarise(
+    sports_balls = median(sports_balls),
+    glass_bottles = mean(glass_bottles),
+    plastic_bottles = mean(plastic_bottles),
+    polystyrene = mean(polystyrene), 
+    chip_bags = mean(chip_bags))
+## # A tibble: 5 x 6
+##    year sports_balls glass_bottles plastic_bottles polystyrene chip_bags
+##   &lt;dbl&gt;        &lt;dbl&gt;         &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+## 1  2014            6         46.8            1877.       2339.     1610.
+## 2  2015           16         32.8            1917.       2503.     1849.
+## 3  2016           26         40.4            2974.       3560.     2752.
+## 4  2017            8         20.5            1998.       1989.     2237.
+## 5  2018            3          6.30           1264.       1404.     1278.</code></pre>
 </div>
+</div>
+<div id="problem-3" class="section level3">
+<h3>Problem 3</h3>
 </div>
 
 

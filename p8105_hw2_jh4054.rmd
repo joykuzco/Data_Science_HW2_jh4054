@@ -94,7 +94,7 @@ nyc_trans_tidy %>%
 ### Problem 2
 
 Read and clean `trash_wheel` data
-```{r}
+```{r, collapse=TRUE}
 trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 1, range = "A2:N338") %>% 
   janitor::clean_names() %>% 
   filter(dumpster != "NA") %>% 
@@ -103,7 +103,7 @@ trash_wheel = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals201
 ```
 
 Read and clean precipitation data for 2016 and 2017. Join datasets for 2016 and 2017. 
-```{r}
+```{r, collapse=TRUE}
 #read and clean precipitation data for 2016
 precip_2016 = readxl::read_excel(path = "./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = 5, range = "A2:B14") %>% 
   janitor::clean_names() %>% 
@@ -131,7 +131,7 @@ precip_years = bind_rows(precip_2016, precip_2017)
 1. sum of precipitation in 2017 = 32.93 inches
 2. median sports_balls in 2016 = 26
 
-```{r}
+```{r, collapse=TRUE}
 #total precipitation in 2017
 sum(precip_2017$prcp_inches)
 
@@ -146,6 +146,14 @@ trash_wheel %>%
     chip_bags = mean(chip_bags))
 ```
 
+### Problem 3
 
+Load BRFSS dataset
+```{r, collapse=TRUE}
+library(p8105.datasets)
+```
 
+```{r}
+
+```
 
