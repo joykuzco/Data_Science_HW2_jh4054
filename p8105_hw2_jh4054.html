@@ -427,24 +427,24 @@ data(brfss_smart2010)</code></pre>
 <div id="brfss-observations" class="section level4">
 <h4>BRFSS Observations</h4>
 <ol style="list-style-type: decimal">
-<li>There are 404 distinct locations</li>
-<li>There are 50 states and the District of Columbia representated</li>
-<li>NJ was the most observed state</li>
-<li>In 2002, the median proportion of “excellent” responses across all surveyed counties is 23.60</li>
+<li>BRFSS dataset represents 404 distinct locations</li>
+<li>Including the District of Columbia and 50 states, there are 51</li>
+<li>NJ was the most observed state, with 146 observations</li>
+<li>In 2002, the median proportion of “excellent” responses across all surveyed counties was 23.60</li>
 </ol>
-<pre class="r"><code>#1. number of unique locations in dataset
+<pre class="r"><code>#1. 404 unique locations in dataset
 brfss %&gt;% 
   distinct(county, state) %&gt;% 
   nrow()
 ## [1] 404
 
-#2. is every state represented?
+#2. number of states represented &amp; DC = 51
 brfss %&gt;% 
   distinct(state) %&gt;% 
   nrow()
 ## [1] 51
 
-#3. what state is observed the most?
+#3. state observed the most
 plyr::count(brfss$state) %&gt;% 
   arrange(desc(freq)) %&gt;% 
   head(1)
