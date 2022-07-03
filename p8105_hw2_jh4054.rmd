@@ -2,12 +2,18 @@
 title: "p8105_hw2_jh4054"
 author: "Joy Hsu"
 date: "10/4/2018"
-output: github_document
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: show
 ---
 
 This R Markdown for hw2 reinforces skills from Data Wrangling.
 
 ### Setup
+
+test
 
 Load packages and set specifications for visual outputs
 ```{r setup, collapse=TRUE}
